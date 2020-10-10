@@ -1,0 +1,23 @@
+
+1. 通过keras库对保证金监控中心验证码进行训练识别
+2. downviewcode 模块对验证码进行批量下载并进行简单去噪
+3. 标注工具.exe 实现对下载的验证码进行批量标注（部分字符串识别中存在问题，不影响最后结果）
+4. train 模块对标注后的验证码进行训练，并得到训练好的网络参数
+5. test 模块可以对训练好的网络进行测试检查
+6. bzjjkzx.h5 为训练好的网络
+7. run 模块已经包含训练好的网络，可以直接实现对保证金监控中心的登录和相关数据的爬取
+
+8. 本项目提供了docker 运行方式
+
+制作镜像：
+	docker build -f Dockerfile -t xuhshen/bzjjkzx:latest .
+
+运行： 
+	docker run -e ACCOUNT=XXXXXXX -e PASSWD=XXXXXXX xuhshen/bzjjkzx
+
+
+
+
+ps：本项目借鉴和包含了sfl666/cfmmc_spider 以及 cycz/EasyCaptcha 中的代码，感谢原作者
+    https://github.com/sfl666/cfmmc_spider.git
+    https://github.com/cycz/EasyCaptcha.git
