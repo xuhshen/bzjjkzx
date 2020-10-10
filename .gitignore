@@ -1,3 +1,10 @@
- .project 
- .pydevproject 
- .settings/* 
+.project
+.pydevproject
+.settings/
+*.pycsamples/.* 
+samples/* 
+*.pyc 
+*.log 
+*.html 
+*.csv 
+src/strategy/stockpools/ 
