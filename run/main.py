@@ -28,7 +28,7 @@ def reg_img(file_obj):
     colorChannel = 3
     height,width = 32,100
     characters = '0123456789abcdefghijklmnopqrstuvwxyz'
-    modelpath = '../bzjjkzx.h5'
+    modelpath =  "{}/../bzjjkzx.h5".format(os.path.dirname(os.path.abspath(__file__)))
     
     X = np.zeros((1, height, width, colorChannel), dtype=np.uint8)
     X[0] = image.load_img("_tmp.png", target_size=(height, width))
@@ -102,6 +102,10 @@ if __name__ == '__main__':
     account = os.environ.get('ACCOUNT',"")
     password = os.environ.get('PASSWD',"")
     
+    #账号
+    account = '0208101600575'
+    # 密码
+    password = 'qjc12345'
     do(account, password)
 
 
