@@ -102,10 +102,6 @@ if __name__ == '__main__':
     account = os.environ.get('ACCOUNT',"")
     password = os.environ.get('PASSWD',"")
     
-    #账号
-    account = '0208101600575'
-    # 密码
-    password = 'qjc12345'
     do(account, password)
 
 
