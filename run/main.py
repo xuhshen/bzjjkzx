@@ -1,8 +1,3 @@
-"""
-Author: shifulin
-Email: shifulin666@qq.com
-"""
-# python3
 import time
 from io import BytesIO
 
@@ -10,10 +5,17 @@ from requests import session
 from PIL import Image
 import PIL.ImageOps
 
+import pandas as pd
+import collections,csv
 import numpy as np
 from keras.preprocessing import image
 from keras.models import load_model
 from bs4 import BeautifulSoup
+import os
+
+if not os.path.exists("/home/output/"):
+    os.makedirs(path) 
+
 
 def reg_img(file_obj):
     im = Image.open(file_obj)
@@ -53,6 +55,35 @@ def get_current_equity(content):
     d = ''.join(c.split(','))
     return float(d)
 
+def pharseinfo(df):
+    '''
+    '''
+    title = df.columns.values[0]
+    rst = collections.OrderedDict()
+    for line in df.values:
+        for k,v in zip(line[::2],line[1::2]):
+            if k is not None:
+                rst[k] = v
+    return title,rst
+
+def save_to_csv(rst):
+    
+    account = rst["基本资料"]["客户期货期权内部资金账户"]
+    name = rst["基本资料"]["客户名称"]
+    current_equity = rst["期货期权账户资金状况"]["客户权益"]
+    print("客户账户:{}   客户权益:{}".format(account,current_equity))
+    
+    with open("/home/output/{}.csv".format(account),"w",newline='',encoding="utf8") as csvfile: 
+        writer = csv.writer(csvfile)
+     
+        for block_name,block_values in rst.items():
+        
+            writer.writerow([block_name])
+            for items in block_values.items():
+                writer.writerow(items)
+            writer.writerow("")
+            writer.writerow("")
+
 def do(user_id, passwd):
     header = {
         'Connection': 'keep-alive',
@@ -68,33 +99,30 @@ def do(user_id, passwd):
     veri_code_url = 'https://investorservice.cfmmc.com/veriCode.do?t=' + flag_filter(content, veri_code_flag)
     for i in range(10):
         print("第{}次验证码识别".format(i))
-        try:
-            tmp_file = BytesIO()
-            tmp_file.write(ss.get(veri_code_url).content)
-            veri_code = reg_img(tmp_file)
-            print(veri_code)
-            if veri_code and len(veri_code) == 6:
-                veri_code = ''.join(filter(str.isalnum, veri_code))
-                print('\t验证码：', veri_code)
-                post_data = {
-    #                     "org.apache.struts.taglib.html.TOKEN": token,
-                    "showSaveCookies": '',
-                    "userID": user_id,
-                    "password": passwd,
-                    "vericode": veri_code,
-                }
-                content2 = ss.post(url, data=post_data, headers=header, timeout=5)
-                res = content2.content.decode()
-                if "验证码错误" not in res:
-                    # print('页面:', res)
-                    current_equity = get_current_equity(res)
-                    print('爬取客户权益 成功')
-                    print('账户:{}  客户权益:{}'.format(user_id,current_equity))
-                    return
-            time.sleep(1)
-            veri_code_url = "https://investorservice.cfmmc.com/veriCode.do?t=" + str(int(time.time() * 1000))
-        except Exception as e:
-            print(e)
+        tmp_file = BytesIO()
+        tmp_file.write(ss.get(veri_code_url).content)
+        veri_code = reg_img(tmp_file)
+        print(veri_code)
+        if veri_code and len(veri_code) == 6:
+            veri_code = ''.join(filter(str.isalnum, veri_code))
+            print('\t验证码：', veri_code)
+            post_data = {
+    #                 "org.apache.struts.taglib.html.TOKEN": token,
+                "showSaveCookies": '',
+                "userID": user_id,
+                "password": passwd,
+                "vericode": veri_code,
+            }
+            content2 = ss.post(url, data=post_data, headers=header, timeout=5)
+            res = content2.content.decode()
+            html=pd.read_html(res,header=0)
+            if "验证码错误" not in res:
+                rst = collections.OrderedDict( pharseinfo(html[i]) for i in range(3,5))
+                save_to_csv(rst)
+                return
+            else:
+                time.sleep(1)
+                veri_code_url = "https://investorservice.cfmmc.com/veriCode.do?t=" + str(int(time.time() * 1000))
     print('爬取客户权益 失败')
 
 if __name__ == '__main__':
