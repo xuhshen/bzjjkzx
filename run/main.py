@@ -72,7 +72,8 @@ def save_to_csv(rst):
     name = rst["基本资料"]["客户名称"]
     current_equity = rst["期货期权账户资金状况"]["客户权益"]
     print("客户账户:{}   客户权益:{}".format(account,current_equity))
-    
+    rst["基本资料"]["客户名称"] = "******"
+    rst["基本资料"]["期货公司名称"] = "******" 
     with open("/home/output/{}.csv".format(account),"w",newline='',encoding="utf8") as csvfile: 
         writer = csv.writer(csvfile)
      
