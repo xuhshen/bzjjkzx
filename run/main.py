@@ -73,12 +73,12 @@ def save_to_csv(rst):
     current_equity = rst["期货期权账户资金状况"]["客户权益"]
     print("客户账户:{}   客户权益:{}".format(account,current_equity))
     rst["基本资料"]["客户名称"] = "******"
-    rst["基本资料"]["期货公司名称"] = "******" 
+    rst["基本资料"]["期货公司名称"] = "******"
+    fields = ["基本资料","期货期权账户资金状况"] 
     with open("/home/output/{}.csv".format(account),"w",newline='',encoding="utf8") as csvfile: 
         writer = csv.writer(csvfile)
-     
-        for block_name,block_values in rst.items():
-        
+        for block_name in fields:
+            block_values = rst[block_name]
             writer.writerow([block_name])
             for items in block_values.items():
                 writer.writerow(items)
@@ -118,7 +118,7 @@ def do(user_id, passwd):
             res = content2.content.decode()
             html=pd.read_html(res,header=0)
             if "验证码错误" not in res:
-                rst = collections.OrderedDict( pharseinfo(html[i]) for i in range(3,5))
+                rst = collections.OrderedDict( pharseinfo(html[i]) for i in range(len(html)))
                 save_to_csv(rst)
                 return
             else:
